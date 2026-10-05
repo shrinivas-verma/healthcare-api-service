@@ -1,6 +1,7 @@
 package com.shrinivas.healthcare_api_service.model;
 
 import com.shrinivas.healthcare_api_service.enums.FileStatus;
+import com.shrinivas.healthcare_api_service.model.auth.Organization;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -53,6 +54,10 @@ public class FileEntity {
 
     @Column(name = "uploaded_at")
     private LocalDateTime uploadedAt;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "organization_id", nullable = false)
+    private Organization organization;
 
 
 }
