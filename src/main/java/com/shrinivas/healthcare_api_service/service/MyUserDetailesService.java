@@ -14,8 +14,8 @@ import java.util.List;
 
 @Service
 public class MyUserDetailesService implements UserDetailsService {
-    private UserRepository userRepo;
-    private UserRoleRepository userRoleRepo;
+    private final UserRepository userRepo;
+    private final UserRoleRepository userRoleRepo;
 
     public MyUserDetailesService(UserRepository userRepo, UserRoleRepository userRoleRepo){
         this.userRepo=userRepo;
@@ -29,7 +29,7 @@ public class MyUserDetailesService implements UserDetailsService {
                         new UsernameNotFoundException(
                                 "User not found: " + username
                         ));
-        List<UserRole> roles=userRoleRepo.findByAppUser(user);
+        List<UserRole> roles=userRoleRepo.findByUser(user);
 
         return new UserPrincipal(user,roles);
     }
