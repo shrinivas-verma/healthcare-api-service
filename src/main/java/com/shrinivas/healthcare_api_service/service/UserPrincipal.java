@@ -26,7 +26,7 @@ public class UserPrincipal implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<RoleName> roleNames=roles.stream().map((role)-> role.getRole().getName()).toList();
         return roleNames.stream().map((roleName)->
-                 new SimpleGrantedAuthority("ROLE_"+roleName)).toList();
+                 new SimpleGrantedAuthority("ROLE_"+roleName.name())).toList();
     }
 
     @Override

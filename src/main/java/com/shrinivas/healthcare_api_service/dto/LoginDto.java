@@ -1,16 +1,13 @@
 package com.shrinivas.healthcare_api_service.dto;
 
-import com.shrinivas.healthcare_api_service.enums.RoleName;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@NoArgsConstructor
 @Getter
 @Setter
-@NoArgsConstructor
-public class UserDto {
+public class LoginDto {
     private String username;
     private String password;
-    private String email;
-    private RoleName roleName;
 }

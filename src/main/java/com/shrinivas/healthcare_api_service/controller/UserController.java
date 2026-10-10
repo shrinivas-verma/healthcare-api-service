@@ -1,11 +1,12 @@
 package com.shrinivas.healthcare_api_service.controller;
 
+import com.shrinivas.healthcare_api_service.dto.LoginDto;
 import com.shrinivas.healthcare_api_service.dto.OrgDto;
 import com.shrinivas.healthcare_api_service.dto.UserDto;
 import com.shrinivas.healthcare_api_service.dto.response.CreateOrganizationResponse;
+import com.shrinivas.healthcare_api_service.dto.response.CreateUserResp;
+import com.shrinivas.healthcare_api_service.dto.response.LoginResp;
 import com.shrinivas.healthcare_api_service.exception.OrganizationNotFoundException;
-import com.shrinivas.healthcare_api_service.model.auth.AppUser;
-import com.shrinivas.healthcare_api_service.model.auth.Organization;
 import com.shrinivas.healthcare_api_service.service.OrganizationService;
 import com.shrinivas.healthcare_api_service.service.UserService;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,13 +26,18 @@ public class UserController {
 
     @PreAuthorize("hasRole('ORG_ADMIN')")
     @PostMapping("register/user")
-    public AppUser registerUser(@RequestBody UserDto userDto) throws OrganizationNotFoundException {
-        return userService.saveUser(userDto);
+    public CreateUserResp registerUser(@RequestBody UserDto userDto) throws OrganizationNotFoundException {
+        return userService.registerUser(userDto);
     }
 
     @PreAuthorize("hasRole('SYSTEM_ADMIN')")
     @PostMapping("register/organization")
     public CreateOrganizationResponse registerOrganization(@RequestBody OrgDto orgDto)  {
         return orgService.createOrganization(orgDto);
+    }
+
+    @PostMapping("/login")
+    public LoginResp loginUser(@RequestBody LoginDto loginDto){
+        return userService.loginUser(loginDto);
     }
 }
