@@ -16,18 +16,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Random;
 import java.util.UUID;
 
 @Service
 public class OrganizationService {
-    private OrganizationRepository orgRepo;
-    private RoleRepository roleRepository;
-    private UserRoleRepository userRoleRepository;
-    private UserRepository userRepository;
-    private PasswordEncoder passwordEncoder;
+    private final OrganizationRepository orgRepo;
+    private final RoleRepository roleRepository;
+    private final UserRoleRepository userRoleRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public OrganizationService(OrganizationRepository orgRepo) {
+    public OrganizationService(OrganizationRepository orgRepo,
+                               RoleRepository roleRepository,UserRoleRepository userRoleRepository,
+                               PasswordEncoder passwordEncoder,UserRepository userRepository) {
         this.orgRepo = orgRepo;
         this.roleRepository=roleRepository;
         this.userRoleRepository=userRoleRepository;
@@ -43,7 +44,7 @@ public class OrganizationService {
         org.setName(orgDto.getName());
         org.setCreatedAt(LocalDateTime.now());
         org.setEnabled(true);
-        org.setId(UUID.randomUUID());
+//        org.setId(UUID.randomUUID());
         org.setUpdatedAt(LocalDateTime.now());
         orgRepo.save(org);
 
@@ -60,13 +61,16 @@ public class OrganizationService {
 
         LocalDateTime now=LocalDateTime.now() ;
         AppUser admin=new AppUser();
-        admin.setId(UUID.randomUUID());
+//        admin.setId(UUID.randomUUID());
         admin.setOrganization(org);
         admin.setUsername(username);
         admin.setEmail(orgDto.getEmail());
         admin.setEnabled(false);
         admin.setCreatedAt(now);
-        Role orgAdminRole=roleRepository.findByName(RoleName.ORG_ADMIN);
+        admin.setUpdatedAt(now);
+        Role orgAdminRole=roleRepository.findByName(RoleName.ORG_ADMIN)
+                .orElseThrow(() ->
+                        new IllegalStateException("Role not configured"));
 
         // The activation flow will let the admin choose a password.
         // Do not store a plaintext password.
@@ -74,8 +78,10 @@ public class OrganizationService {
                 UUID.randomUUID().toString()
         ));
 
+        userRepository.save(admin);
+
         UserRole userRole=new UserRole();
-        userRole.setId(UUID.randomUUID() );
+//        userRole.setId(UUID.randomUUID() );
         userRole.setRole(orgAdminRole);
         userRole.setUser(admin);
 

@@ -2,9 +2,9 @@ spring:
   application:
     name: healthcare-api-service
   datasource:
-    url: jdbc:postgresql://localhost:5433/healthcare
-    username: postgres
-    password: Admin@123
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -14,10 +14,18 @@ spring:
   flyway:
     enabled: true
 
-  bootstrap:
-    admin:
-      username: ${BOOTSTRAP_ADMIN_USERNAME}
-      password: ${BOOTSTRAP_ADMIN_PASSWORD}
-      email: ${BOOTSTRAP_ADMIN_EMAIL}
-      organization-name: ${BOOTSTRAP_ORG_NAME}
-      organization-code: ${BOOTSTRAP_ORG_CODE}
+bootstrap:
+  admin:
+    username: ${BOOTSTRAP_ADMIN_USERNAME}
+    password: ${BOOTSTRAP_ADMIN_PASSWORD}
+    email: ${BOOTSTRAP_ADMIN_EMAIL}
+    organization-name: ${BOOTSTRAP_ORG_NAME}
+    organization-code: ${BOOTSTRAP_ORG_CODE}
+jwt:
+  secret: ${JWT_SECRET}
+
+server:
+  port: 9000
+logging:
+  level:
+    org.springframework.security: DEBUG

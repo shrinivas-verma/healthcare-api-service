@@ -13,11 +13,11 @@ import java.util.List;
 
 
 @Service
-public class MyUserDetailesService implements UserDetailsService {
+public class MyUserDetailsService implements UserDetailsService {
     private final UserRepository userRepo;
     private final UserRoleRepository userRoleRepo;
 
-    public MyUserDetailesService(UserRepository userRepo, UserRoleRepository userRoleRepo){
+    public MyUserDetailsService(UserRepository userRepo, UserRoleRepository userRoleRepo){
         this.userRepo=userRepo;
         this.userRoleRepo=userRoleRepo;
     }
@@ -29,7 +29,7 @@ public class MyUserDetailesService implements UserDetailsService {
                         new UsernameNotFoundException(
                                 "User not found: " + username
                         ));
-        List<UserRole> roles=userRoleRepo.findByUser(user);
+        List<UserRole> roles=userRoleRepo.findByUserWithRole(user);
 
         return new UserPrincipal(user,roles);
     }
