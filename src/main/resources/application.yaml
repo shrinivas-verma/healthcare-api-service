@@ -13,3 +13,11 @@ spring:
 
   flyway:
     enabled: true
+
+  bootstrap:
+    admin:
+      username: ${BOOTSTRAP_ADMIN_USERNAME}
+      password: ${BOOTSTRAP_ADMIN_PASSWORD}
+      email: ${BOOTSTRAP_ADMIN_EMAIL}
+      organization-name: ${BOOTSTRAP_ORG_NAME}
+      organization-code: ${BOOTSTRAP_ORG_CODE}
