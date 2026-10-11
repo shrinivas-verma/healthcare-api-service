@@ -5,6 +5,7 @@ import com.shrinivas.healthcare_api_service.dto.UserDto;
 import com.shrinivas.healthcare_api_service.dto.response.CreateUserResp;
 import com.shrinivas.healthcare_api_service.dto.response.LoginResp;
 import com.shrinivas.healthcare_api_service.dto.response.LoginRespRole;
+import com.shrinivas.healthcare_api_service.dto.response.OrganizationResp;
 import com.shrinivas.healthcare_api_service.enums.RoleName;
 import com.shrinivas.healthcare_api_service.exception.OrganizationNotFoundException;
 import com.shrinivas.healthcare_api_service.exception.UserCreationNotAllowedException;
@@ -15,6 +16,7 @@ import com.shrinivas.healthcare_api_service.model.auth.UserRole;
 import com.shrinivas.healthcare_api_service.repository.RoleRepository;
 import com.shrinivas.healthcare_api_service.repository.UserRepository;
 import com.shrinivas.healthcare_api_service.repository.UserRoleRepository;
+import org.jspecify.annotations.NonNull;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -27,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -35,17 +38,20 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
-    private UserRoleRepository userRoleRepository;
+    private final UserRoleRepository userRoleRepository;
+    private PasswordEncoder passwordEncoder;
 
     public UserService(UserRepository userRepository, PasswordEncoder encoder,
                        RoleRepository roleRepository, JwtService jwtService,
-                       AuthenticationManager authenticationManager, UserRoleRepository userRoleRepository) {
+                       AuthenticationManager authenticationManager, UserRoleRepository userRoleRepository,
+                       PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.encoder = encoder;
         this.roleRepository = roleRepository;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
         this.userRoleRepository=userRoleRepository;
+        this.passwordEncoder=passwordEncoder;
     }
 
     @Transactional
@@ -64,7 +70,7 @@ public class UserService {
 
         String adminUsername = authentication.getName();
 
-        AppUser admin = userRepository.findByUsername(adminUsername)
+        AppUser admin = userRepository.findByUsernameWithOrganization(adminUsername)
                 .orElseThrow(() -> new UsernameNotFoundException("Admin not found"));
 
         Organization organization = admin.getOrganization();
@@ -93,11 +99,15 @@ public class UserService {
 
         AppUser newUser = new AppUser();
         newUser.setUsername(userDto.getUsername());
-        newUser.setPassword(encoder.encode(userDto.getPassword()));
+
+        String randomString= UUID.randomUUID().toString();
+        System.out.println(randomString);
+        newUser.setPassword(encoder.encode(randomString));
+//        Temp register user behaviour- replace with activation link
+
         newUser.setEmail(userDto.getEmail());
         newUser.setCreatedAt(LocalDateTime.now());
         newUser.setEnabled(true);
-//        newUser.setId(UUID.randomUUID());
         newUser.setOrganization(organization);
         newUser.setUpdatedAt(LocalDateTime.now());
 
@@ -106,25 +116,35 @@ public class UserService {
                         new IllegalStateException("Role not configured"));
 
         UserRole userRole = new UserRole();
-//        userRole.setId(UUID.randomUUID());
         userRole.setUser(newUser);
         userRole.setRole(role);
+//        save user first as userRole->user is Many to One with LAZY FETCH
+        userRepository.save(newUser);
         userRoleRepository.save(userRole);
 
-        userRepository.save(newUser);
 
+        CreateUserResp resp = getCreateUserResp(newUser);
+        return resp;
+    }
+
+    private static @NonNull CreateUserResp getCreateUserResp(AppUser newUser) {
         CreateUserResp resp = new CreateUserResp();
         resp.setUsername(newUser.getUsername());
         resp.setCreatedAt(newUser.getCreatedAt());
         resp.setId(newUser.getId());
-        resp.setOrganization(newUser.getOrganization());
+        OrganizationResp orgResp=new OrganizationResp();
+        orgResp.setCode(newUser.getOrganization().getCode());
+        orgResp.setEnabled(newUser.getOrganization().getEnabled());
+        orgResp.setId(newUser.getOrganization().getId());
+        orgResp.setName(newUser.getOrganization().getName());
+        resp.setOrganization(orgResp);
         return resp;
     }
 
     public LoginResp loginUser(LoginDto loginDto) {
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword()));
-        AppUser appUser = userRepository.findByUsername(loginDto.getUsername())
+        AppUser appUser = userRepository.findByUsernameWithOrganization(loginDto.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("username not found"));
         List<UserRole> roles = userRoleRepository.findByUser(appUser);
 
