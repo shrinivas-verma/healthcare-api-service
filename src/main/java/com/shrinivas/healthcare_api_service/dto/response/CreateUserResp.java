@@ -15,7 +15,7 @@ public class CreateUserResp {
     private UUID id;
     private String username;
     private String email;
-    private Organization organization;
+    private OrganizationResp organization;
     private LocalDateTime createdAt;
 
 }

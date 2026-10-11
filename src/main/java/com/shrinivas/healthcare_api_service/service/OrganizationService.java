@@ -65,7 +65,7 @@ public class OrganizationService {
         admin.setOrganization(org);
         admin.setUsername(username);
         admin.setEmail(orgDto.getEmail());
-        admin.setEnabled(false);
+        admin.setEnabled(true);
         admin.setCreatedAt(now);
         admin.setUpdatedAt(now);
         Role orgAdminRole=roleRepository.findByName(RoleName.ORG_ADMIN)
@@ -74,10 +74,12 @@ public class OrganizationService {
 
         // The activation flow will let the admin choose a password.
         // Do not store a plaintext password.
+        String randomString=UUID.randomUUID().toString();
         admin.setPassword(passwordEncoder.encode(
-                UUID.randomUUID().toString()
+                randomString
         ));
-
+        System.out.println(randomString);
+//        for testing purpose- remove from code
         userRepository.save(admin);
 
         UserRole userRole=new UserRole();
