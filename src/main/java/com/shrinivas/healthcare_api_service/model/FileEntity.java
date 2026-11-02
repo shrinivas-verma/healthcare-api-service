@@ -24,9 +24,6 @@ public class FileEntity {
     @Column(name = "original_file_name", nullable = false)
     private String originalFileName;
 
-    @Column(name = "stored_file_name", nullable = false)
-    private String storedFileName;
-
     @Column(name = "file_type", nullable = false)
     private String fileType;
 
@@ -39,7 +36,7 @@ public class FileEntity {
     @Column(name = "s3_bucket", nullable = false)
     private String s3Bucket;
 
-    @Column(name = "s3_object_key", nullable = false, length = 1000)
+    @Column(name = "s3_object_key", nullable = false, unique = true, length = 1000)
     private String s3ObjectKey;
 
     @Enumerated(EnumType.STRING)
@@ -49,9 +46,11 @@ public class FileEntity {
     @Column(length = 255)
     private String checksum;
 
+//    when db record was created
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+//    when object was successfully uploaded to s3
     @Column(name = "uploaded_at")
     private LocalDateTime uploadedAt;
 

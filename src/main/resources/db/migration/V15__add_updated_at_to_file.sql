@@ -1,0 +1,2 @@
+ALTER TABLE file
+    ADD COLUMN updated_at TIMESTAMP;

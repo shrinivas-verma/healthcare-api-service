@@ -1,5 +1,6 @@
 package com.shrinivas.healthcare_api_service.model;
 
+import com.shrinivas.healthcare_api_service.enums.JobPriority;
 import com.shrinivas.healthcare_api_service.enums.JobStatus;
 import com.shrinivas.healthcare_api_service.enums.JobType;
 import jakarta.persistence.*;
@@ -33,19 +34,20 @@ public class ProcessingJob {
     @Column(nullable = false)
     private JobStatus status;
 
+    @Enumerated(EnumType.STRING)
     @Column
-    private String priority;
+    private JobPriority priority;
 
-    @Column(name = "correlation_id", nullable = false, unique = true)
+    @Column(name = "correlation_id", nullable = false)
     private String correlationId;
 
     @Column(name = "retry_count", nullable = false)
     private Integer retryCount = 0;
 
-    @Column(name = "error_code")
+    @Column(name = "error_code", length = 100)
     private String errorCode;
 
-    @Column(name = "error_message")
+    @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
 
     @Column(name = "created_at", nullable = false)

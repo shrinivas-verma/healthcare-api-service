@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import tools.jackson.databind.JsonNode;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -33,7 +34,7 @@ public class OutboxEvent {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(nullable = false, columnDefinition = "jsonb")
-    private String payload;
+    private JsonNode payload;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -50,4 +51,7 @@ public class OutboxEvent {
 
     @Column(name = "last_error")
     private String lastError;
+
+    @Column(name="next_attempt_at")
+    private LocalDateTime nextAttemptAt;
 }
