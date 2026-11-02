@@ -2,12 +2,13 @@ package com.shrinivas.healthcare_api_service.model;
 
 import com.shrinivas.healthcare_api_service.enums.FileStatus;
 import com.shrinivas.healthcare_api_service.model.auth.Organization;
+import com.shrinivas.healthcare_api_service.model.base.BaseAuditableEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -15,7 +16,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class FileEntity {
+public class FileEntity extends BaseAuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -46,17 +47,12 @@ public class FileEntity {
     @Column(length = 255)
     private String checksum;
 
-//    when db record was created
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-
 //    when object was successfully uploaded to s3
     @Column(name = "uploaded_at")
-    private LocalDateTime uploadedAt;
+    private Instant uploadedAt;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "organization_id", nullable = false)
     private Organization organization;
-
 
 }

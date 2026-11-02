@@ -16,6 +16,11 @@ spring:
     enabled: true
     out-of-order: true
 
+  servlet:
+    multipart:
+      max-file-size: 500MB
+      max-request-size: 500MB
+
 bootstrap:
   admin:
     username: ${BOOTSTRAP_ADMIN_USERNAME}
@@ -27,9 +32,9 @@ jwt:
   secret: ${JWT_SECRET}
 
 aws:
-  region: eu-north-1
+  region: ${AWS_REGION}
   s3:
-    bucket: healthcare-application-212810920260-eu-north-1-an
+    bucket: ${S3_BUCKET}
     multipart:
       enabled: true
       threshold: 100MB

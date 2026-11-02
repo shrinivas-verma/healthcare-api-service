@@ -3,12 +3,13 @@ package com.shrinivas.healthcare_api_service.model;
 import com.shrinivas.healthcare_api_service.enums.JobPriority;
 import com.shrinivas.healthcare_api_service.enums.JobStatus;
 import com.shrinivas.healthcare_api_service.enums.JobType;
+import com.shrinivas.healthcare_api_service.model.base.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -16,7 +17,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ProcessingJob {
+public class ProcessingJob extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -50,12 +51,9 @@ public class ProcessingJob {
     @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-
     @Column(name = "started_at")
-    private LocalDateTime startedAt;
+    private Instant startedAt;
 
     @Column(name = "completed_at")
-    private LocalDateTime completedAt;
+    private Instant completedAt;
 }

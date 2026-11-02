@@ -1,13 +1,11 @@
 package com.shrinivas.healthcare_api_service.model.auth;
 
+import com.shrinivas.healthcare_api_service.model.base.BaseAuditableEntity;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -20,7 +18,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
-public class AppUser {
+public class AppUser extends BaseAuditableEntity {
         @Id
         @GeneratedValue(strategy = GenerationType.UUID)
         private UUID id;
@@ -40,12 +38,6 @@ public class AppUser {
         @ManyToOne(fetch = FetchType.LAZY, optional = false)
         @JoinColumn(name = "organization_id", nullable = false)
         private Organization organization;
-
-        @Column(name="created_at",nullable = false)
-        private LocalDateTime createdAt;
-
-        @Column(name="updated_at",nullable = false)
-        private LocalDateTime updatedAt;
 }
 
 

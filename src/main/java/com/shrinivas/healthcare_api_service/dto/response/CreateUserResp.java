@@ -1,11 +1,10 @@
 package com.shrinivas.healthcare_api_service.dto.response;
 
-import com.shrinivas.healthcare_api_service.model.auth.Organization;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @NoArgsConstructor
@@ -16,6 +15,6 @@ public class CreateUserResp {
     private String username;
     private String email;
     private OrganizationResp organization;
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
 }

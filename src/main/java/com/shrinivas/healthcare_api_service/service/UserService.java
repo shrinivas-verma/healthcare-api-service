@@ -27,7 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
@@ -106,10 +106,10 @@ public class UserService {
 //        Temp register user behaviour- replace with activation link
 
         newUser.setEmail(userDto.getEmail());
-        newUser.setCreatedAt(LocalDateTime.now());
+        newUser.setCreatedAt(Instant.now());
         newUser.setEnabled(true);
         newUser.setOrganization(organization);
-        newUser.setUpdatedAt(LocalDateTime.now());
+        newUser.setUpdatedAt(Instant.now());
 
         Role role = roleRepository.findByName(requestedRole)
                 .orElseThrow(() ->

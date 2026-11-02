@@ -1,0 +1,9 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    com.shrinivas.healthcare_api_service: DEBUG
