@@ -1,0 +1,9 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+logging:
+  level:
+    org.springframework.security: INFO
+    com.shrinivas.healthcare_api_service: INFO
