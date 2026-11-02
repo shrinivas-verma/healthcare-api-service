@@ -24,9 +24,6 @@ public class FileEntity {
     @Column(name = "original_file_name", nullable = false)
     private String originalFileName;
 
-//    @Column(name = "stored_file_name", nullable = false)
-//    private String storedFileName;
-
     @Column(name = "file_type", nullable = false)
     private String fileType;
 

@@ -34,6 +34,7 @@ public class ProcessingJob {
     @Column(nullable = false)
     private JobStatus status;
 
+    @Enumerated(EnumType.STRING)
     @Column
     private JobPriority priority;
 
