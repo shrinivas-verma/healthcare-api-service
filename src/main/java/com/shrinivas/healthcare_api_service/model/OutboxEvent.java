@@ -1,6 +1,7 @@
 package com.shrinivas.healthcare_api_service.model;
 
 import com.shrinivas.healthcare_api_service.enums.OutboxEventStatus;
+import com.shrinivas.healthcare_api_service.model.base.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,7 +10,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import tools.jackson.databind.JsonNode;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -17,7 +18,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class OutboxEvent {
+public class OutboxEvent extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -43,15 +44,12 @@ public class OutboxEvent {
     @Column(name = "retry_count", nullable = false)
     private Integer retryCount = 0;
 
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-
     @Column(name = "published_at")
-    private LocalDateTime publishedAt;
+    private Instant publishedAt;
 
     @Column(name = "last_error")
     private String lastError;
 
     @Column(name="next_attempt_at")
-    private LocalDateTime nextAttemptAt;
+    private Instant nextAttemptAt;
 }

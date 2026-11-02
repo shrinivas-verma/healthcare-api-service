@@ -14,7 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Service
 public class SecurityBootstrapService {
@@ -61,7 +61,7 @@ public class SecurityBootstrapService {
         Organization systemOrganization =
                 organizationRepository.findByCode(adminOrgCode);
 
-        LocalDateTime now = LocalDateTime.now();
+        Instant now = Instant.now();
 
         if (systemOrganization == null) {
             systemOrganization = new Organization();

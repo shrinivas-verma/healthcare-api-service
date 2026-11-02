@@ -15,7 +15,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Service
@@ -42,10 +42,10 @@ public class OrganizationService {
         Organization org=new Organization();
         org.setCode(orgDto.getCode());
         org.setName(orgDto.getName());
-        org.setCreatedAt(LocalDateTime.now());
+        org.setCreatedAt(Instant.now());
         org.setEnabled(true);
 //        org.setId(UUID.randomUUID());
-        org.setUpdatedAt(LocalDateTime.now());
+        org.setUpdatedAt(Instant.now());
         orgRepo.save(org);
 
 //        generate admin username
@@ -59,7 +59,7 @@ public class OrganizationService {
             suffix++;
         }
 
-        LocalDateTime now=LocalDateTime.now() ;
+        Instant now=Instant.now() ;
         AppUser admin=new AppUser();
 //        admin.setId(UUID.randomUUID());
         admin.setOrganization(org);

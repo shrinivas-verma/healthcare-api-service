@@ -1,11 +1,12 @@
 package com.shrinivas.healthcare_api_service.model.auth;
 
+import com.shrinivas.healthcare_api_service.model.base.BaseAuditableEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -17,11 +18,11 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Organization {
+public class Organization extends BaseAuditableEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID Id;
+    private UUID id;
 
     @Column(nullable = false)
     private String name;
@@ -32,12 +33,6 @@ public class Organization {
 //    allows deactivating an organization without deleting all its users/data
     @Column(nullable = false)
     private Boolean enabled=true;
-
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
 }
 
 
