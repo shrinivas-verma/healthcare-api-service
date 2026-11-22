@@ -6,14 +6,10 @@ import com.shrinivas.healthcare_api_service.dto.response.FileUploadResponse;
 import com.shrinivas.healthcare_api_service.enums.FileStatus;
 import com.shrinivas.healthcare_api_service.enums.JobStatus;
 import com.shrinivas.healthcare_api_service.enums.JobType;
-import com.shrinivas.healthcare_api_service.enums.OutboxEventStatus;
 import com.shrinivas.healthcare_api_service.model.FileEntity;
-import com.shrinivas.healthcare_api_service.model.OutboxEvent;
 import com.shrinivas.healthcare_api_service.model.auth.AppUser;
 import com.shrinivas.healthcare_api_service.model.auth.Organization;
 import com.shrinivas.healthcare_api_service.repository.AppUserRepository;
-import com.shrinivas.healthcare_api_service.repository.FileRepository;
-import com.shrinivas.healthcare_api_service.repository.OutboxEventRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
@@ -30,7 +26,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.UUID;
@@ -42,7 +37,7 @@ public class FileUploadService {
     private final AppUserRepository appUserRepository;
     private final S3StorageService s3StorageService;
     private final FilePersistenceService filePersistenceService;
-    private final ObjectMapper objectMapper;
+//    private final ObjectMapper objectMapper;
 
     @Value("${aws.s3.bucket}")
     private String bucketName;
@@ -56,7 +51,7 @@ public class FileUploadService {
         this.appUserRepository = appUserRepository;
         this.s3StorageService = s3StorageService;
         this.filePersistenceService = filePersistenceService;
-        this.objectMapper = objectMapper;
+//        this.objectMapper = objectMapper;
     }
 
     public FileUploadResponse receiveFile(

@@ -3,7 +3,6 @@ package com.shrinivas.healthcare_api_service.controller;
 import com.shrinivas.healthcare_api_service.dto.response.FileUploadResponse;
 import com.shrinivas.healthcare_api_service.enums.JobType;
 import com.shrinivas.healthcare_api_service.service.FileUploadService;
-import com.shrinivas.healthcare_api_service.service.S3StorageService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
