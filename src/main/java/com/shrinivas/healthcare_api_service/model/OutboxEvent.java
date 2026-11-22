@@ -8,9 +8,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
-import tools.jackson.databind.JsonNode;
+import org.springframework.data.domain.Persistable;
 
 import java.time.Instant;
+import java.util.Map;
 import java.util.UUID;
 
 @Entity
@@ -18,11 +19,25 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class OutboxEvent extends BaseEntity {
+public class OutboxEvent extends BaseEntity implements Persistable<UUID> {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
+    @Transient
+    private boolean newEntity = true;
+
+    @Override
+    public boolean isNew() {
+        return newEntity;
+    }
+
+    @PostPersist
+    @PostLoad
+    public void markNotNew() {
+        this.newEntity = false;
+    }
+
 
     @Column(name = "aggregate_type", nullable = false)
     private String aggregateType;
@@ -35,7 +50,7 @@ public class OutboxEvent extends BaseEntity {
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(nullable = false, columnDefinition = "jsonb")
-    private JsonNode payload;
+    private Map<String, Object> payload;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

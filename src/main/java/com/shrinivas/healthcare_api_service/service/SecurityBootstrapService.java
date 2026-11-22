@@ -7,7 +7,7 @@ import com.shrinivas.healthcare_api_service.model.auth.Role;
 import com.shrinivas.healthcare_api_service.model.auth.UserRole;
 import com.shrinivas.healthcare_api_service.repository.OrganizationRepository;
 import com.shrinivas.healthcare_api_service.repository.RoleRepository;
-import com.shrinivas.healthcare_api_service.repository.UserRepository;
+import com.shrinivas.healthcare_api_service.repository.AppUserRepository;
 import com.shrinivas.healthcare_api_service.repository.UserRoleRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,7 +20,7 @@ import java.time.Instant;
 public class SecurityBootstrapService {
 
     private final OrganizationRepository organizationRepository;
-    private final UserRepository userRepository;
+    private final AppUserRepository appUserRepository;
     private final RoleRepository roleRepository;
     private final UserRoleRepository userRoleRepository;
     private final PasswordEncoder passwordEncoder;
@@ -42,13 +42,13 @@ public class SecurityBootstrapService {
 
     public SecurityBootstrapService(
             OrganizationRepository organizationRepository,
-            UserRepository userRepository,
+            AppUserRepository appUserRepository,
             RoleRepository roleRepository,
             UserRoleRepository userRoleRepository,
             PasswordEncoder passwordEncoder) {
 
         this.organizationRepository = organizationRepository;
-        this.userRepository = userRepository;
+        this.appUserRepository = appUserRepository;
         this.roleRepository = roleRepository;
         this.userRoleRepository = userRoleRepository;
         this.passwordEncoder = passwordEncoder;
@@ -85,7 +85,7 @@ public class SecurityBootstrapService {
 
 
         // 3. Find the bootstrap user, or create it.
-        AppUser systemAdmin = userRepository
+        AppUser systemAdmin = appUserRepository
                 .findByUsername(adminUsername)
                 .orElse(null);
 
@@ -102,7 +102,7 @@ public class SecurityBootstrapService {
             systemAdmin.setCreatedAt(now);
             systemAdmin.setUpdatedAt(now);
 
-            systemAdmin = userRepository.save(systemAdmin);
+            systemAdmin = appUserRepository.save(systemAdmin);
         } else {
             // Do not silently accept a username belonging to another org.
             if (!systemAdmin.getOrganization().getId()

@@ -1,12 +1,14 @@
 package com.shrinivas.healthcare_api_service.model;
 
 import com.shrinivas.healthcare_api_service.enums.FileStatus;
+import com.shrinivas.healthcare_api_service.model.auth.AppUser;
 import com.shrinivas.healthcare_api_service.model.auth.Organization;
 import com.shrinivas.healthcare_api_service.model.base.BaseAuditableEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.domain.Persistable;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -16,11 +18,25 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class FileEntity extends BaseAuditableEntity {
+public class FileEntity extends BaseAuditableEntity implements Persistable<UUID> {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
+    @Transient
+    private boolean newEntity = true;
+
+    @Override
+    public boolean isNew() {
+        return newEntity;
+    }
+
+    @PostPersist
+    @PostLoad
+    public void markNotNew() {
+        this.newEntity = false;
+    }
+
 
     @Column(name = "original_file_name", nullable = false)
     private String originalFileName;
@@ -54,5 +70,9 @@ public class FileEntity extends BaseAuditableEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "organization_id", nullable = false)
     private Organization organization;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "uploaded_by_user_id")
+    private AppUser uploadedBy;
 
 }

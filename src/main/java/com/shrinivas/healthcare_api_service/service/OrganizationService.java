@@ -9,7 +9,7 @@ import com.shrinivas.healthcare_api_service.model.auth.Role;
 import com.shrinivas.healthcare_api_service.model.auth.UserRole;
 import com.shrinivas.healthcare_api_service.repository.OrganizationRepository;
 import com.shrinivas.healthcare_api_service.repository.RoleRepository;
-import com.shrinivas.healthcare_api_service.repository.UserRepository;
+import com.shrinivas.healthcare_api_service.repository.AppUserRepository;
 import com.shrinivas.healthcare_api_service.repository.UserRoleRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -23,16 +23,16 @@ public class OrganizationService {
     private final OrganizationRepository orgRepo;
     private final RoleRepository roleRepository;
     private final UserRoleRepository userRoleRepository;
-    private final UserRepository userRepository;
+    private final AppUserRepository appUserRepository;
     private final PasswordEncoder passwordEncoder;
 
     public OrganizationService(OrganizationRepository orgRepo,
-                               RoleRepository roleRepository,UserRoleRepository userRoleRepository,
-                               PasswordEncoder passwordEncoder,UserRepository userRepository) {
+                               RoleRepository roleRepository, UserRoleRepository userRoleRepository,
+                               PasswordEncoder passwordEncoder, AppUserRepository appUserRepository) {
         this.orgRepo = orgRepo;
         this.roleRepository=roleRepository;
         this.userRoleRepository=userRoleRepository;
-        this.userRepository=userRepository;
+        this.appUserRepository = appUserRepository;
         this.passwordEncoder=passwordEncoder;
     }
 
@@ -54,7 +54,7 @@ public class OrganizationService {
         String username = baseUsername;
         int suffix = 1;
 
-        while (userRepository.existsByUsername(username)) {
+        while (appUserRepository.existsByUsername(username)) {
             username = baseUsername + suffix;
             suffix++;
         }
@@ -80,7 +80,7 @@ public class OrganizationService {
         ));
         System.out.println(randomString);
 //        for testing purpose- remove from code
-        userRepository.save(admin);
+        appUserRepository.save(admin);
 
         UserRole userRole=new UserRole();
 //        userRole.setId(UUID.randomUUID() );

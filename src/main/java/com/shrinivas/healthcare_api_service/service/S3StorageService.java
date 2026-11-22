@@ -1,24 +1,35 @@
 package com.shrinivas.healthcare_api_service.service;
 
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3AsyncClient;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.HeadBucketRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.transfer.s3.S3TransferManager;
+import software.amazon.awssdk.transfer.s3.model.UploadFileRequest;
 
-import java.io.IOException;
+import java.nio.file.Path;
+
 
 @Service
+@Getter
 public class S3StorageService {
+    private final S3TransferManager s3TransferManager;
+    private final S3AsyncClient s3AsyncClient;
     private final S3Client s3Client;
 
     @Value("${aws.s3.bucket}")
     private String bucketName;
 
-    public S3StorageService(S3Client s3Client) {
-        this.s3Client = s3Client;
+    public S3StorageService(S3TransferManager s3TransferManager,
+                            S3AsyncClient s3AsyncClient,
+                            S3Client s3Client) {
+        this.s3TransferManager = s3TransferManager;
+        this.s3AsyncClient=s3AsyncClient;
+        this.s3Client=s3Client;
     }
 
     public boolean checkBucketAccess() {
@@ -32,28 +43,37 @@ public class S3StorageService {
         return true;
     }
 
-    public String uploadFile(MultipartFile file, String s3ObjectKey) {
+    public void uploadFile(
+            Path source,
+            String s3ObjectKey,
+            String contentType) {
 
-        try {
-            PutObjectRequest request = PutObjectRequest.builder()
-                    .bucket(bucketName)
-                    .key(s3ObjectKey)
-                    .contentType(file.getContentType())
-                    .contentLength(file.getSize())
-                    .build();
+        PutObjectRequest putObjectRequest =
+                PutObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(s3ObjectKey)
+                        .contentType(contentType)
+                        .build();
 
-            s3Client.putObject(
-                    request,
-                    RequestBody.fromInputStream(
-                            file.getInputStream(),
-                            file.getSize()
-                    )
-            );
+        UploadFileRequest uploadRequest =
+                UploadFileRequest.builder()
+                        .putObjectRequest(putObjectRequest)
+                        .source(source)
+                        .build();
 
-            return s3ObjectKey;
-
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to read uploaded file", e);
-        }
+        s3TransferManager.uploadFile(uploadRequest)
+                .completionFuture()
+                .join();
     }
+
+    public void deleteFile(String s3ObjectKey) {
+
+        s3AsyncClient.deleteObject(
+                DeleteObjectRequest.builder()
+                        .bucket(bucketName)
+                        .key(s3ObjectKey)
+                        .build()
+        ).join();
+    }
+
 }

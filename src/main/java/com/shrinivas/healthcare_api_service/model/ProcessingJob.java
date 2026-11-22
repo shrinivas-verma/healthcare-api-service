@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.domain.Persistable;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -17,11 +18,25 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ProcessingJob extends BaseEntity {
+public class ProcessingJob extends BaseEntity implements Persistable<UUID> {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
+    @Transient
+    private boolean newEntity = true;
+
+    @Override
+    public boolean isNew() {
+        return newEntity;
+    }
+
+    @PostPersist
+    @PostLoad
+    public void markNotNew() {
+        this.newEntity = false;
+    }
+
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "file_id", nullable = false)

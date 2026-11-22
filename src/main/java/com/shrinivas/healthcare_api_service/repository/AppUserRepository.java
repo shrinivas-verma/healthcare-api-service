@@ -10,8 +10,9 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface UserRepository extends JpaRepository<AppUser, UUID> {
+public interface AppUserRepository extends JpaRepository<AppUser, UUID> {
     Optional<AppUser> findByUsername(String username);
+
     @Query("""
             SELECT au
             FROM AppUser au
@@ -19,6 +20,7 @@ public interface UserRepository extends JpaRepository<AppUser, UUID> {
             WHERE au.username = :username
             """)
     Optional<AppUser> findByUsernameWithOrganization(@Param("username") String username);
+
     Boolean existsByUsername(String username);
     Boolean existsByEmail(String email);
 }

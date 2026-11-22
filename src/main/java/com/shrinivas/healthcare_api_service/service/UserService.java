@@ -14,7 +14,7 @@ import com.shrinivas.healthcare_api_service.model.auth.Organization;
 import com.shrinivas.healthcare_api_service.model.auth.Role;
 import com.shrinivas.healthcare_api_service.model.auth.UserRole;
 import com.shrinivas.healthcare_api_service.repository.RoleRepository;
-import com.shrinivas.healthcare_api_service.repository.UserRepository;
+import com.shrinivas.healthcare_api_service.repository.AppUserRepository;
 import com.shrinivas.healthcare_api_service.repository.UserRoleRepository;
 import org.jspecify.annotations.NonNull;
 import org.springframework.security.access.AccessDeniedException;
@@ -33,7 +33,7 @@ import java.util.UUID;
 
 @Service
 public class UserService {
-    private final UserRepository userRepository;
+    private final AppUserRepository appUserRepository;
     private final PasswordEncoder encoder;
     private final RoleRepository roleRepository;
     private final JwtService jwtService;
@@ -41,11 +41,11 @@ public class UserService {
     private final UserRoleRepository userRoleRepository;
     private PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, PasswordEncoder encoder,
+    public UserService(AppUserRepository appUserRepository, PasswordEncoder encoder,
                        RoleRepository roleRepository, JwtService jwtService,
                        AuthenticationManager authenticationManager, UserRoleRepository userRoleRepository,
                        PasswordEncoder passwordEncoder) {
-        this.userRepository = userRepository;
+        this.appUserRepository = appUserRepository;
         this.encoder = encoder;
         this.roleRepository = roleRepository;
         this.jwtService = jwtService;
@@ -70,7 +70,7 @@ public class UserService {
 
         String adminUsername = authentication.getName();
 
-        AppUser admin = userRepository.findByUsernameWithOrganization(adminUsername)
+        AppUser admin = appUserRepository.findByUsernameWithOrganization(adminUsername)
                 .orElseThrow(() -> new UsernameNotFoundException("Admin not found"));
 
         Organization organization = admin.getOrganization();
@@ -79,11 +79,11 @@ public class UserService {
             throw new AccessDeniedException("Your organization is disabled");
         }
 
-        if (userRepository.existsByUsername(userDto.getUsername())) {
+        if (appUserRepository.existsByUsername(userDto.getUsername())) {
             throw new IllegalArgumentException("Username already exists");
         }
 
-        if (userRepository.existsByEmail(userDto.getEmail())) {
+        if (appUserRepository.existsByEmail(userDto.getEmail())) {
             throw new IllegalArgumentException("Email already exists");
         }
 
@@ -119,7 +119,7 @@ public class UserService {
         userRole.setUser(newUser);
         userRole.setRole(role);
 //        save user first as userRole->user is Many to One with LAZY FETCH
-        userRepository.save(newUser);
+        appUserRepository.save(newUser);
         userRoleRepository.save(userRole);
 
 
@@ -144,7 +144,7 @@ public class UserService {
     public LoginResp loginUser(LoginDto loginDto) {
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(loginDto.getUsername(), loginDto.getPassword()));
-        AppUser appUser = userRepository.findByUsernameWithOrganization(loginDto.getUsername())
+        AppUser appUser = appUserRepository.findByUsernameWithOrganization(loginDto.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("username not found"));
         List<UserRole> roles = userRoleRepository.findByUser(appUser);
 

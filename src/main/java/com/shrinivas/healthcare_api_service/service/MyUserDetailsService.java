@@ -2,7 +2,7 @@ package com.shrinivas.healthcare_api_service.service;
 
 import com.shrinivas.healthcare_api_service.model.auth.AppUser;
 import com.shrinivas.healthcare_api_service.model.auth.UserRole;
-import com.shrinivas.healthcare_api_service.repository.UserRepository;
+import com.shrinivas.healthcare_api_service.repository.AppUserRepository;
 import com.shrinivas.healthcare_api_service.repository.UserRoleRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -14,10 +14,10 @@ import java.util.List;
 
 @Service
 public class MyUserDetailsService implements UserDetailsService {
-    private final UserRepository userRepo;
+    private final AppUserRepository userRepo;
     private final UserRoleRepository userRoleRepo;
 
-    public MyUserDetailsService(UserRepository userRepo, UserRoleRepository userRoleRepo){
+    public MyUserDetailsService(AppUserRepository userRepo, UserRoleRepository userRoleRepo){
         this.userRepo=userRepo;
         this.userRoleRepo=userRoleRepo;
     }
