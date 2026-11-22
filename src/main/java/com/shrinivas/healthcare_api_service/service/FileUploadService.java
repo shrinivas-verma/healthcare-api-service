@@ -54,6 +54,7 @@ public class FileUploadService {
 //        this.objectMapper = objectMapper;
     }
 
+
     public FileUploadResponse receiveFile(
             MultipartFile file,
             JobType jobType) {
@@ -73,8 +74,7 @@ public class FileUploadService {
 
         if (authentication == null
                 || !authentication.isAuthenticated()
-                || !(authentication.getPrincipal()
-                instanceof UserPrincipal)) {
+                || !(authentication.getPrincipal() instanceof UserPrincipal)) {
 
             throw new AccessDeniedException("Authenticated user not found");
         }
@@ -100,16 +100,20 @@ public class FileUploadService {
         String correlationId = UUID.randomUUID().toString();
 
         // 4. Get file metadata
-        String originalFileName = sanitizeFileName(file.getOriginalFilename());
+        String originalFileName =
+                sanitizeFileName(file.getOriginalFilename());
+
         String contentType = file.getContentType();
         String extension = getFileExtension(originalFileName);
 
         if (!"xlsx".equalsIgnoreCase(extension)) {
-            throw new IllegalArgumentException("Only XLSX files are currently supported");
+            throw new IllegalArgumentException(
+                    "Only XLSX files are currently supported");
         }
 
         if (contentType == null) {
-            contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            contentType =
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
         }
 
         // 5. Generate S3 object key
@@ -119,14 +123,21 @@ public class FileUploadService {
         int year = utcDateTime.getYear();
         int month = utcDateTime.getMonthValue();
 
-        String objectKey = "organizations/" + organization.getId() + "/files/" + year + "/" + month
-                        + "/" + fileId + "." + extension;
+        String objectKey = "organizations/" + organization.getId()
+                + "/files/" + year + "/" + month
+                + "/" + fileId + "." + extension;
 
         Path tempFile = null;
 
+        // Track which operations completed successfully.
+        boolean fileReserved = false;
+        boolean s3UploadCompleted = false;
+
         try {
+
             // 6. Create temporary file
-            tempFile = Files.createTempFile("healthcare-upload-", "." + extension);
+            tempFile = Files.createTempFile(
+                    "healthcare-upload-", "." + extension);
 
             file.transferTo(tempFile.toFile());
 
@@ -149,16 +160,22 @@ public class FileUploadService {
             fileEntity.setOrganization(organization);
             fileEntity.setUploadedBy(appUser);
 
-            // This method commits its own transaction.
+            // This method has its own transaction.
+            // The transaction commits before this call returns.
             filePersistenceService.reserveFile(fileEntity);
+            fileReserved = true;
 
             // 9. Upload the actual file to S3
-            s3StorageService.uploadFile(tempFile, objectKey, contentType);
+            s3StorageService.uploadFile(
+                    tempFile, objectKey, contentType);
+
+            s3UploadCompleted = true;
 
             // 10. Update file and create job + outbox event
             Instant uploadedAt = Instant.now();
 
-            FileUploadedEventPayload payload = new FileUploadedEventPayload(
+            FileUploadedEventPayload payload =
+                    new FileUploadedEventPayload(
                             eventId,
                             OutboxConstants.EVENT_FILE_UPLOADED,
                             1,
@@ -176,11 +193,16 @@ public class FileUploadService {
                             uploadedAt
                     );
 
-            filePersistenceService.completeUpload(fileId, jobId, eventId, correlationId,
-                    jobType, payload
-//                    , objectMapper
+            filePersistenceService.completeUpload(
+                    fileId,
+                    jobId,
+                    eventId,
+                    correlationId,
+                    jobType,
+                    payload
             );
 
+            // 11. Return successful response
             return new FileUploadResponse(
                     fileId,
                     jobId,
@@ -193,20 +215,26 @@ public class FileUploadService {
 
         } catch (Exception exception) {
 
-            // If S3 upload succeeded but the DB completion failed,
-            // attempt to remove the S3 object.
-            try {
-                s3StorageService.deleteFile(objectKey);
-            } catch (Exception deleteException) {
-                exception.addSuppressed(deleteException);
+            // 12. If S3 upload completed, attempt to delete the object.
+            if (s3UploadCompleted) {
+                try {
+                    s3StorageService.deleteFile(objectKey);
+                } catch (Exception deleteException) {
+                    exception.addSuppressed(deleteException);
+                }
             }
 
-            try {
-                filePersistenceService.markUploadFailed(
-                        fileId,
-                        exception.getMessage());
-            } catch (Exception persistenceException) {
-                exception.addSuppressed(persistenceException);
+            // 13. Mark the database record failed,
+            // but only if the initial reservation succeeded.
+            if (fileReserved) {
+                try {
+                    filePersistenceService.markUploadFailed(
+                            fileId,
+                            exception.getMessage()
+                    );
+                } catch (Exception persistenceException) {
+                    exception.addSuppressed(persistenceException);
+                }
             }
 
             throw new RuntimeException(
@@ -214,15 +242,17 @@ public class FileUploadService {
 
         } finally {
 
+            // 14. Delete temporary file regardless of success or failure.
             if (tempFile != null) {
                 try {
                     Files.deleteIfExists(tempFile);
                 } catch (IOException exception) {
-                    // Log this in your application.
+                    // Log temporary file cleanup failure.
                 }
             }
         }
     }
+
 
     private String sanitizeFileName(String fileName) {
 
